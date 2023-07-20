@@ -64,7 +64,7 @@ def objective(trial: optuna.trial.Trial):
     
     neptune_logger = NeptuneLogger(
         api_key=os.environ.get('api_token_neptune'),
-        project='shockofwave/multihead-nn-tda-afm-analysis',
+        project='shockofwave/polyelectrolytes-recognition',
         tags=['training', 'multihead'],
         mode='offline'
     )

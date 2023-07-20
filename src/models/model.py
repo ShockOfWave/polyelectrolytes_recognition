@@ -7,9 +7,9 @@ import torch
 from torch import nn
 import pytorch_lightning as pl
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-import torchvision.transforms as transforms
 from sklearn.metrics import *
 import scikitplot as skplt
+from neptune.types import File
 
 from src.paths.paths import get_project_path
 
@@ -243,6 +243,10 @@ class Combined_Model(pl.LightningModule):
         self.val_losses_all: list = []
         self.val_probs_all: list = []
         self.val_y_all: list = []
+        # test
+        self.test_losses_all: list = []
+        self.test_probs_all: list = []
+        self.test_y_all: list = []
         
         
         self.inn1 = Image_NN(
@@ -352,25 +356,14 @@ class Combined_Model(pl.LightningModule):
         y_hat = self.forward(x1, x2, x3, x4, x5, x6)
         loss = self.loss(y_hat, y)
         
-        self.log('train_loss', loss, prog_bar=False)
+        self.train_losses_all.append(loss.detach())
+        self.train_probs_all.append(y_hat.detach())
+        self.train_y_all.append(y.detach())
         
-        self.train_losses_all.append(loss)
-        self.train_probs_all.append(y_hat)
-        self.train_y_all.append(y)
+        return loss
                 
     
     def on_training_epoch_end(self):
-        
-        if self.current_epoch == 1:
-            new_batch = {
-                'auto': torch.rand((1, 1536)),
-                'min_max': torch.rand((1, 36)),
-                'flattened': torch.rand((1, 50575)),
-                'barcode': torch.rand((1, 3, 256, 256)),
-                'diagram': torch.rand((1, 3, 256, 256)),
-                'afm': torch.rand((1, 3, 256, 256))
-            }
-            self.logger.experiment.add_graph(self, (new_batch['auto'], new_batch['min_max'], new_batch['flattened'], new_batch['barcode'], new_batch['diagram'], new_batch['afm']))
         
         avg_loss = torch.stack(self.train_losses_all).mean()
         y_probs = torch.cat(self.train_probs_all, 0)
@@ -380,21 +373,6 @@ class Combined_Model(pl.LightningModule):
         
         self.log('train_loss_epoch', avg_loss, sync_dist=True, prog_bar=True)
         self.log('train_acc_epoch', acc, sync_dist=True, prog_bar=True)
-        
-        self.logger.experiment.add_scalar('Loss/Train', avg_loss, self.current_epoch)
-        self.logger.experiment.add_scalar('Accuracy/Train', acc, self.current_epoch)
-        
-        if not self.le == None:
-            skplt.metrics.plot_confusion_matrix(self.le.inverse_transform(y_true.cpu().numpy()), self.le.inverse_transform(y_probs.argmax(1).cpu().numpy()), normalize=True)
-        else:
-            skplt.metrics.plot_confusion_matrix(y_true.cpu().numpy(), y_probs.argmax(1).cpu().numpy(), normalize=True)
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=500)
-        buf.seek(0)
-        im = Image.open(buf)
-        im = transforms.ToTensor()(im)
-        
-        self.logger.experiment.add_image('Training confusion matrix', im, self.current_epoch)
         
         self.train_losses_all.clear()
         self.train_probs_all.clear()
@@ -406,11 +384,11 @@ class Combined_Model(pl.LightningModule):
         y_hat = self.forward(x1, x2, x3, x4, x5, x6)
         loss = self.loss(y_hat, y)
         
-        self.log('val_loss', loss, prog_bar=False)
+        self.val_losses_all.append(loss.detach())
+        self.val_probs_all.append(y_hat.detach())
+        self.val_y_all.append(y.detach())
         
-        self.val_losses_all.append(loss)
-        self.val_probs_all.append(y_hat)
-        self.val_y_all.append(y)
+        return loss
         
 
     def on_validation_epoch_end(self):
@@ -424,23 +402,72 @@ class Combined_Model(pl.LightningModule):
         self.log('val_loss_epoch', avg_loss, sync_dist=True, prog_bar=True)
         self.log('val_acc_epoch', acc, sync_dist=True, prog_bar=True)
         
-        self.logger.experiment.add_scalar('Loss/Valid', avg_loss, self.current_epoch)
-        self.logger.experiment.add_scalar('Accuracy/Valid', acc, self.current_epoch)
+        self.val_losses_all.clear()
+        self.val_probs_all.clear()
+        self.val_y_all.clear()
+        
+    def test_step(self, batch, batch_idx):
+        x1, x2, x3, x4, x5, x6, y = batch['auto'], batch['min_max'], batch['flattened'], batch['barcode'], batch['diagram'], batch['afm'], batch['label']
+        y_hat = self.forward(x1, x2, x3, x4, x5, x6)
+        loss = self.loss(y_hat, y)
+        
+        self.test_losses_all.append(loss.detach())
+        self.test_probs_all.append(y_hat.detach())
+        self.test_y_all.append(y.detach())
+        
+        return loss
+    
+    def on_test_epoch_end(self):
+        avg_loss = torch.stack(self.test_losses_all).mean()
+        y_probs = torch.cat(self.test_probs_all, 0)
+        y_true = torch.cat(self.test_y_all, 0)
+        
+        acc = accuracy_score(y_true.cpu(), y_probs.argmax(1).cpu().numpy())
+        
+        self.log('test_loss_epoch', avg_loss, sync_dist=True, prog_bar=False)
+        self.log('test_acc_epoch', acc, sync_dist=True, prog_bar=False)
+        
         if not self.le == None:
             skplt.metrics.plot_confusion_matrix(self.le.inverse_transform(y_true.cpu().numpy()), self.le.inverse_transform(y_probs.argmax(1).cpu().numpy()), normalize=True)
         else:
             skplt.metrics.plot_confusion_matrix(y_true.cpu().numpy(), y_probs.argmax(1).cpu().numpy(), normalize=True)
+            
         buf = io.BytesIO()
         plt.savefig(buf, format='png', dpi=500)
         buf.seek(0)
         im = Image.open(buf)
-        im = transforms.ToTensor()(im)
         
-        self.logger.experiment.add_image('Validation confusion matrix', im, self.current_epoch)
+        self.logger.experiment['test/conf_matrix'].append(File.as_image(im))
         
-        self.val_losses_all.clear()
-        self.val_probs_all.clear()
-        self.val_y_all.clear()
+        plt.close()
+        
+        if not self.le == None:
+            skplt.metrics.plot_precision_recall(self.le.inverse_transform(y_true.cpu().numpy()), y_probs.cpu().numpy())
+        else:
+            skplt.metrics.plot_precision_recall(y_true.cpu().numpy(), y_probs.cpu().numpy())
+            
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=500)
+        buf.seek(0)
+        im = Image.open(buf)
+        
+        self.logger.experiment['test/precision_recall'].append(File.as_image(im))
+        
+        plt.close()
+        
+        if not self.le == None:
+            skplt.metrics.plot_roc(self.le.inverse_transform(y_true.cpu().numpy()), y_probs.cpu().numpy())
+        else:
+            skplt.metrics.plot_roc(y_true.cpu().numpy(), y_probs.cpu().numpy())
+            
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', dpi=500)
+        buf.seek(0)
+        im = Image.open(buf)
+        
+        self.logger.experiment['test/roc'].append(File.as_image(im))
+        
+        plt.close()
         
     
     def configure_optimizers(self):
@@ -455,30 +482,6 @@ class Combined_Model(pl.LightningModule):
             'interval': 'epoch',
             'frequency': 1,
             'reduce_on_plateau': True,
-            'monitor': 'valid_loss',
+            'monitor': 'val_loss_epoch',
         }
         return [optimizer], [scheduler]
-    
-    # def setup(self):
-    #     path_to_data = os.path.join(get_project_path(), 'prepared_data')
-    
-    #     auto = np.load(os.path.join(path_to_data, 'auto_tables.npy'), allow_pickle=True)
-    #     min_max = np.load(os.path.join(path_to_data, 'min_max_tables.npy'), allow_pickle=True)
-    #     flattened = np.load(os.path.join(path_to_data, 'flattened_tables.npy'), allow_pickle=True)
-
-    #     barcode = np.load(os.path.join(path_to_data, 'barcode_images.npy'), allow_pickle=True)
-    #     diagram = np.load(os.path.join(path_to_data, 'barcode_images.npy'), allow_pickle=True)
-    #     afm = np.load(os.path.join(path_to_data, 'afm_images.npy'), allow_pickle=True)
-
-    #     labels = np.load(os.path.join(path_to_data, 'labels.npy'), allow_pickle=True)
-
-    #     train_auto, val_auto, train_min_max, val_min_max, train_flattened, val_flattened, train_barcode, val_barcode, train_diagram, val_diagram, train_afm, val_afm, y_train, y_val = train_test_split(auto, min_max, flattened, barcode, diagram, afm, labels, test_size=0.25, random_state=42)
-
-    #     self.train_dataset = CustomCombinedDataset(train_auto, train_min_max, train_flattened, train_barcode, train_diagram, train_afm, y_train)
-    #     self.val_dataset = CustomCombinedDataset(val_auto, val_min_max, val_flattened, val_barcode, val_diagram, val_afm, y_val)
-        
-    # def train_dataloader(self) -> TRAIN_DATALOADERS:
-    #     return DataLoader(self.train_dataset, batch_size=4)
-    
-    # def val_dataloader(self) -> EVAL_DATALOADERS:
-    #     return DataLoader(self.val_dataset, batch_size=4)

@@ -14,14 +14,14 @@ default_config = {
 }
 
 tune_config = {
-    'sign_size': tune.choice([16, 32]),
+    'sign_size': tune.choice([16, 32, 64]),
     'cha_input': tune.choice([8, 16, 32]),
     'cha_hidden': tune.choice([256, 512]),
-    'K': tune.choice([3]),
+    'K': tune.choice([3, 5]),
     'dropout_input': tune.choice([0.1]),
     'dropout_hidden': tune.choice([0.1]),
     'dropout_output': tune.choice([0.1]),
-    'N': tune.choice([3]),
+    'N': tune.choice([3, 5]),
     'hidden_layer': tune.choice([256, 512]),
     'dropout_size': tune.choice([0.05])
 }

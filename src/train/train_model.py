@@ -36,7 +36,7 @@ def train_model(config: dict = default_config):
     val_dataset = CustomCombinedDataset(val_auto, val_min_max, val_flattened, val_barcode, val_diagram, val_afm, y_val)
     
     early_stop_callback = EarlyStopping(
-                    monitor='valid_loss',
+                    monitor='val_loss_epoch',
                     min_delta=.01,
                     patience=20,
                     verbose=True,
@@ -44,7 +44,7 @@ def train_model(config: dict = default_config):
                 )
     
     logger = TensorBoardLogger(save_dir=os.path.join(get_project_path(), 'lightning_logs_2'))
-    checkpoint_callback = ModelCheckpoint(monitor='valid_loss')
+    checkpoint_callback = ModelCheckpoint(monitor='val_loss_epoch')
     lr_monitor = LearningRateMonitor(logging_interval='epoch')
     model = Combined_Model(config)
     

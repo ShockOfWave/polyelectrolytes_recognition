@@ -96,3 +96,10 @@ backup_data/
 prepared_data/
 ray_results/
 test_data/
+
+# logs and checkpoints
+checkpoints/
+logs/
+
+# Neptune
+.neptune/

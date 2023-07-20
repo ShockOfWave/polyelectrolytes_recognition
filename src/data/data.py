@@ -1,6 +1,7 @@
 import os
 import pickle
 import numpy as np
+from pytorch_lightning.utilities.types import EVAL_DATALOADERS, TRAIN_DATALOADERS
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 import torch
@@ -54,7 +55,7 @@ class CustomCombinedDataset(Dataset):
     
 class CustomDataset_lightning(pl.LightningDataModule):
     
-    def __init__(self, batch_size=2):
+    def __init__(self, batch_size=4):
         super().__init__()
         
         self.path_to_data = os.path.join(get_project_path(), 'prepared_data')
@@ -75,9 +76,13 @@ class CustomDataset_lightning(pl.LightningDataModule):
 
         self.train_dataset = CustomCombinedDataset(train_auto, train_min_max, train_flattened, train_barcode, train_diagram, train_afm, y_train)
         self.val_dataset = CustomCombinedDataset(val_auto, val_min_max, val_flattened, val_barcode, val_diagram, val_afm, y_val)
+        self.test_dataset = CustomCombinedDataset(auto, min_max, flattened, barcode, diagram, afm, labels)
     
-    def train_dataloader(self):
+    def train_dataloader(self) -> TRAIN_DATALOADERS:
         return DataLoader(self.train_dataset, batch_size=self.batch_size)
     
-    def val_dataloader(self):
+    def val_dataloader(self) -> EVAL_DATALOADERS:
         return DataLoader(self.val_dataset, batch_size=self.batch_size)
+    
+    def test_dataloader(self) -> EVAL_DATALOADERS:
+        return DataLoader(self.test_dataset, batch_size=self.batch_size)

@@ -72,6 +72,11 @@ Here is the basic suggested skeleton for your data science repo (you can structu
 ```
 
 # Results and evaluation
+
+### Model structure
+
+![alt text](images/multimodal_classifier.onnx.svg)
+
 Provide an overview of the results of your project, including any relevant metrics and graphs. Include explanations of any evaluation methodologies and how they were used to assess the quality of the model. You can also make it appealing by including any pictures of your analysis or visualizations.
 
 # Future work

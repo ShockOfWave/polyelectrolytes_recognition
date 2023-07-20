@@ -11,11 +11,6 @@ from torch.utils.data import DataLoader
 
 from lightning.pytorch.loggers.neptune import NeptuneLogger
 
-# from lightning.pytorch.trainer import Trainer
-# from lightning.pytorch.callbacks import EarlyStopping, RichProgressBar, RichModelSummary, LearningRateMonitor
-
-
-
 from pytorch_lightning.trainer import Trainer
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.callbacks.progress.rich_progress import RichProgressBar
@@ -105,8 +100,7 @@ def objective(trial: optuna.trial.Trial):
     
     return trainer.callback_metrics['val_loss_epoch'].item()
 
-if __name__ == '__main__':
-    
+def tune_model_optuna():
     load_dotenv(find_dotenv())
     
     study = optuna.create_study(
@@ -131,5 +125,8 @@ if __name__ == '__main__':
     print("  Params: ")
     for key, value in trial.params.items():
         print("    {}: {}".format(key, value))
+
+if __name__ == '__main__':
+    tune_model_optuna()
         
     

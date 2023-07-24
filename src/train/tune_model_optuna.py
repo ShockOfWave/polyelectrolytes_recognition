@@ -98,7 +98,7 @@ def objective(trial: optuna.trial.Trial):
     
     neptune_logger.log_model_summary(model=model, max_depth=-1)
     
-    return trainer.callback_metrics['val_loss_epoch'].item()
+    return trainer.callback_metrics['test_loss_epoch'].item()
 
 def tune_model_optuna():
     load_dotenv(find_dotenv())

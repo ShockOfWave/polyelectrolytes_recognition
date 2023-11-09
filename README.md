@@ -1,6 +1,6 @@
 ![](images/Barcode_PNG.png)
 
-# Project Title
+# Polyelectrolytes recognition
 
 ![GitHub](https://img.shields.io/github/license/ShockOfWave/polyelectrolytes_recognition)
 ![GitHub last commit](https://img.shields.io/github/last-commit/ShockOfWave/polyelectrolytes_recognition)
@@ -9,9 +9,11 @@
 ![codesize](https://img.shields.io/github/languages/code-size/ShockOfWave/polyelectrolytes_recognition)
 ![GitHub repo size](https://img.shields.io/github/repo-size/ShockOfWave/polyelectrolytes_recognition)
 
-# Project Overview
+# Introduction
 
-This project created a classification model capable of determining the number of polyelectrolyte bilayers from AFM data. TDA methods were used to increase the quality and quantity of the training set. We used CNN and a perceptron based on the [PyTorch](https://pytorch.org) framework. Optimization was carried out using [Optuna](https://optuna.org).
+This work is a [continuation](https://github.com/ShockOfWave/barcode) of research on the application of topological data analysis algorithms to atomic force microscopy data. This project created a classification model capable of determining the number of polyelectrolyte bilayers from AFM data. TDA methods were used to increase the quality and quantity of the training set. We used CNN and a perceptron based on the PyTorch framework. Optimization was carried out using Optuna.
+You can find out more about the use of TDA for real objects from material and surface sciences in the articles by Skorb, Nosonovsky, Zhukov, Aglikov, and Aliev. Links will be added later, as articles are published.
+You can find out more about the use of TDA for real objects from material and surface sciences in the articles by Skorb, Nosonovsky, Zhukov, Aglikov, and Aliev. Links will be added later, as articles are published. Details and description of the approach will be given in the article in the near future.
 
 # Installation and Setup
 
@@ -65,6 +67,10 @@ Further potential work is associated with the use of neural networks for real-ti
 
 # Acknowledgments/References
 We thank the [Infochemistry Scientific Center ISC](infochemistry.ru) for the provided data and computing power.
+
+# Reference & Citation
+
+Will be later...
 
 # License
 The code is distributed under the [MIT license](https://opensource.org/license/mit/).

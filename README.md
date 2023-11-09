@@ -2,12 +2,12 @@
 
 # Project Title
 
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/pragyy/datascience-readme-template?include_prereleases)
-![GitHub last commit](https://img.shields.io/github/last-commit/pragyy/datascience-readme-template)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/pragyy/datascience-readme-template)
-![GitHub](https://img.shields.io/github/license/pragyy/datascience-readme-template)
-![contributors](https://img.shields.io/github/contributors/pragyy/datascience-readme-template) 
-![codesize](https://img.shields.io/github/languages/code-size/pragyy/datascience-readme-template) 
+![GitHub](https://img.shields.io/github/license/ShockOfWave/polyelectrolytes_recognition)
+![GitHub last commit](https://img.shields.io/github/last-commit/ShockOfWave/polyelectrolytes_recognition)
+![GitHub pull requests](https://img.shields.io/github/issues-pr/ShockOfWave/polyelectrolytes_recognition)
+![contributors](https://img.shields.io/github/contributors/ShockOfWave/polyelectrolytes_recognition) 
+![codesize](https://img.shields.io/github/languages/code-size/ShockOfWave/polyelectrolytes_recognition)
+![GitHub repo size](https://img.shields.io/github/repo-size/ShockOfWave/polyelectrolytes_recognition)
 
 # Project Overview
 

@@ -70,7 +70,21 @@ We thank the [Infochemistry Scientific Center ISC](infochemistry.ru) for the pro
 
 # Reference & Citation
 
-Will be later...
+The authors are more then happy if you refer the following work:
+
+```tex
+@article{Aglikov2023,
+  title = {Topological Data Analysis of Nanoscale Roughness of Layer-by-Layer Polyelectrolyte Samples Using Machine Learning},
+  ISSN = {2637-6113},
+  url = {http://dx.doi.org/10.1021/acsaelm.3c01358},
+  DOI = {10.1021/acsaelm.3c01358},
+  journal = {ACS Applied Electronic Materials},
+  publisher = {American Chemical Society (ACS)},
+  author = {Aglikov,  Aleksandr S. and Aliev,  Timur A. and Zhukov,  Mikhail V. and Nikitina,  Anna A. and Smirnov,  Evgeny and Kozodaev,  Dmitry A. and Nosonovsky,  Michael I. and Skorb,  Ekaterina V.},
+  year = {2023},
+  month = nov 
+}
+```
 
 # License
 The code is distributed under the [MIT license](https://opensource.org/license/mit/).
